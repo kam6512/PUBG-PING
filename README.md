@@ -6,3 +6,5 @@ pyinstaller --onefile --noconsole --name PUBG-PING --icon pubg.ico .\PUBG-PING-A
 ````
 
 ![Image of TEST](https://github.com/kam6512/PUBG-PING/blob/master/pic/AWS%20TEST.png)
+
+[Download ZIP](https://github.com/kam6512/PUBG-PING/raw/master/dist/PUBG-PING.zip)
