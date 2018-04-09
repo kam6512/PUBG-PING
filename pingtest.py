@@ -1,10 +1,27 @@
 import subprocess
 import re
 
+import uuid
+import requests
+import time
+
 from rx import Observable
 
 import tkinter as tk
 root = tk.Tk()
+
+
+class AWS:
+    def check(self):
+        link = "http://dynamodb.ap-northeast-2.amazonaws.com/ping?x="
+
+        return Observable.interval(2000)\
+            .map(lambda i: uuid.uuid4().hex)\
+            .map(lambda hash: link+hash)\
+            .map(lambda req_link: requests.get(req_link))\
+            .on_error_resume_next(lambda e: Observable.just(e))\
+            .map(lambda res: res.elapsed.total_seconds())\
+            .map(lambda elapsed: int(round(elapsed, 3)*1000))
 
 
 class IP_Manager:
@@ -126,6 +143,9 @@ class Application(tk.Frame):
         else:
             self.ping["text"] = "WAIT FOR PUBG...R"
 
+    def setPingTextAWS(self, res):
+        self.ping["text"] = str(res)+'ms'
+
 
 def runUI():
     root.call('wm', 'attributes', '.', '-topmost', '1')
@@ -137,7 +157,8 @@ def runUI():
     app = Application(master=root)
 
     global runner
-    runner = IP_Manager().run().subscribe(on_next=lambda next: app.setPingText(next))
+    # runner = IP_Manager().run().subscribe(on_next=lambda next: app.setPingText(next))
+    runner = AWS().check().subscribe(on_next=lambda next: app.setPingTextAWS(next))
 
     app.mainloop()
 
@@ -146,4 +167,7 @@ def exit(event):
     runner.dispose()
     root.destroy()
 
+
 runUI()
+# AWS().check().subscribe(on_next=lambda next: print(next))
+# input('press any key to exit\n')
